@@ -7,13 +7,13 @@ from app.database import get_database
 from app.services.categories import CategoryService
 
 
-category_router = APIRouter()
+category_router = APIRouter(prefix= "/category",tags = ['categories'])
 logger = logging.getLogger(__name__)
 
 def category_service(db: AsyncIOMotorDatabase = Depends(get_database)):
     return CategoryService(db)
 
-@category_router.post('/create_category',response_model = CategoryResponse)
+@category_router.post('',response_model = CategoryResponse)
 async def create_category(request:Request, category_data:CreateCategory, service : CategoryService=Depends(category_service)):
     logger.info(f"Request path: {request.url.path}")
     try:
@@ -26,7 +26,7 @@ async def create_category(request:Request, category_data:CreateCategory, service
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal Server Error")
     
 
-@category_router.get('/get_categories',response_model = List[CategoryResponse])
+@category_router.get('',response_model = List[CategoryResponse])
 async def get_all_categories(request:Request, service: CategoryService = Depends(category_service)):
     logger.info(f"Request path: {request.url.path}")
     try:
@@ -40,7 +40,7 @@ async def get_all_categories(request:Request, service: CategoryService = Depends
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal Server Error")
     
 
-@category_router.put('/update_category',response_model = CategoryResponse)
+@category_router.put('/{category_id}',response_model = CategoryResponse)
 async def update_category(request:Request, category_id:str, service: CategoryService = Depends(category_service)):
     logger.info(f"Request path: {request.url.path}")
     try:
@@ -56,7 +56,7 @@ async def update_category(request:Request, category_id:str, service: CategorySer
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal Server Error")
     
 
-@category_router.delete('/delete_category')
+@category_router.delete('/{category_id}')
 async def delete_user(request : Request, category_id : str, service : CategoryService = Depends(category_service)):
     logger.info(f"Request path: {request.url.path}")
     try:
