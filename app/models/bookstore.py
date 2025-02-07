@@ -1,8 +1,10 @@
 from pydantic import BaseModel, Field
 from datetime import datetime
+from typing import List
 
-class Category(BaseModel):
+class Bookstore(BaseModel):
     name: str
-    description: str
+    location: str
+    book_ids: List[str] = []  # store only book ids
     created_at: datetime
     updated_at: datetime
