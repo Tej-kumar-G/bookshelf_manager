@@ -1,7 +1,11 @@
-from pydantic import BaseModel
+from app.models import CreateUpdateMixin
+from datetime import date, datetime
 
-class User(BaseModel):
-    username:str
-    email:str
-    full_name:str
-    password:str
+class User(CreateUpdateMixin):
+    name: str
+    email: str
+    gender: str
+    phone_number: str
+    age: int
+    password: str
+

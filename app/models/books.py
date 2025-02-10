@@ -1,10 +1,12 @@
-from pydantic import BaseModel
-
+from pydantic import BaseModel, Field
+from datetime import datetime
+from typing import Optional
 
 class Book(BaseModel):
-    title: str
-    author: str
-    isbn: str
-    publisher: str
-    year_published: int
-    copies_available: int
+    name: str
+    description: str
+    author_id: str
+    category_id: str
+    publisher_id: Optional[str] = None
+    created_at: datetime
+    updated_at: datetime

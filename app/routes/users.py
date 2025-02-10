@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, status, Path
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from typing import List
 import logging
-from app.schemas.users import CreateUser, UserDetails, UpdateUser
+from app.schemas.users import CreateUser, UserResponse, UpdateUser
 from app.database import get_database
 from app.services.users import UserService
 
@@ -13,7 +13,7 @@ def user_service(db: AsyncIOMotorDatabase = Depends(get_database)):
     return UserService(db)
 
 
-@user_router.post('',response_model = UserDetails)
+@user_router.post('',response_model = UserResponse)
 async def create_user(request:Request, user : CreateUser, service:UserService=Depends(user_service)):
     logger.info(f"Request path: {request.url.path}")
     try:
@@ -25,7 +25,7 @@ async def create_user(request:Request, user : CreateUser, service:UserService=De
         logger.error(f"Exception: {str(e)}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal Server Error")
     
-@user_router.get('/{user_id}',response_model = UserDetails)
+@user_router.get('/{user_id}',response_model = UserResponse)
 async def get_user_details(request:Request, user_id:str=Path(...), service: UserService = Depends(user_service)):
     logger.info(f"Request path: {request.url.path}")
     try:
@@ -38,7 +38,7 @@ async def get_user_details(request:Request, user_id:str=Path(...), service: User
         logger.error(f"Exception: {str(e)}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal Server Error")
 
-@user_router.put("/{user_id}",response_model = UserDetails)
+@user_router.put("/{user_id}",response_model = UserResponse)
 async def update_user(request:Request, user_id:str, user : UpdateUser, service:UserService = Depends(user_service)):
     logger.info(f"Request path: {request.url.path}")
     try:

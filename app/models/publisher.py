@@ -1,9 +1,9 @@
 from pydantic import BaseModel, Field
 from datetime import datetime
 
-class Category(BaseModel):
+class Publisher(BaseModel):
     name: str
-    description: str
+    location: str
     created_at: datetime
     updated_at: datetime
-  
+    

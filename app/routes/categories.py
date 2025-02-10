@@ -1,70 +1,34 @@
-from fastapi import APIRouter, Depends, HTTPException, Request, status, Query
+from fastapi import APIRouter, Depends
 from motor.motor_asyncio import AsyncIOMotorDatabase
-from typing import List
-import logging
-from app.schemas.categories import CreateCategory,CategoryResponse,UpdateCategory
-from app.database import get_database
+from app.schemas.categories import CreateCategory, UpdateCategory, CategoryResponse, BaseCategoryResponse
 from app.services.categories import CategoryService
+from app.database import get_database
 
-
-category_router = APIRouter(prefix= "/category",tags = ['categories'])
-logger = logging.getLogger(__name__)
+category_router = APIRouter(prefix="/categories", tags=["Categories"])
 
 def category_service(db: AsyncIOMotorDatabase = Depends(get_database)):
     return CategoryService(db)
 
-@category_router.post('',response_model = CategoryResponse)
-async def create_category(request:Request, category_data:CreateCategory, service : CategoryService=Depends(category_service)):
-    logger.info(f"Request path: {request.url.path}")
-    try:
-        return await service.create_category(category_data=category_data)
-    except HTTPException as e:
-        logger.error(f"HTTPException: {e.detail}")
-        raise e
-    except Exception as e:
-        logger.error(f"Exception: {str(e)}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal Server Error")
-    
+@category_router.post("", response_model=CategoryResponse, status_code=201)
+async def create_category(category: CreateCategory, service: CategoryService = Depends(category_service)):
+    return await service.create_category(category)
 
-@category_router.get('',response_model = List[CategoryResponse])
-async def get_all_categories(request:Request, service: CategoryService = Depends(category_service)):
-    logger.info(f"Request path: {request.url.path}")
-    try:
-        categories = await service.get_categories()
-        return categories
-    except HTTPException as e:
-        logger.error(f"HTTPException: {e.detail}")
-        raise e
-    except Exception as e:
-        logger.error(f"Exception: {str(e)}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal Server Error")
-    
+@category_router.get("", response_model=list[CategoryResponse])
+async def get_all_categories(service: CategoryService = Depends(category_service)):
+    return await service.get_categories()
 
-@category_router.put('/{category_id}',response_model = CategoryResponse)
-async def update_category(request:Request, category_id:str, service: CategoryService = Depends(category_service)):
-    logger.info(f"Request path: {request.url.path}")
-    try:
-        update = await service.update_category(category_id=category_id)
-        return update
-    
-    except HTTPException as e:
-        logger.error(f"HTTPException: {e.detail}")
-        raise e
-    
-    except Exception as e:
-        logger.error(f"Exception: {str(e)}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal Server Error")
-    
+@category_router.get("/{category_id}", response_model=CategoryResponse)
+async def get_category(category_id: str, service: CategoryService = Depends(category_service)):
+    return await service.get_category(category_id)
 
-@category_router.delete('/{category_id}')
-async def delete_user(request : Request, category_id : str, service : CategoryService = Depends(category_service)):
-    logger.info(f"Request path: {request.url.path}")
-    try:
-        await service.delete_category(category_id=category_id)
-        return f"category with id {category_id} is successfully deleted"
-    except HTTPException as e:
-        logger.error(f"HTTPException: {e.detail}")
-        raise e
-    except Exception as e:
-        logger.error(f"Exception: {str(e)}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal Server Error")
+@category_router.put("/{category_id}", response_model=CategoryResponse)
+async def update_category(category_id: str, category_update: UpdateCategory, service: CategoryService = Depends(category_service)):
+    return await service.update_category(category_id, category_update)
+
+@category_router.delete("/{category_id}", status_code=204)
+async def delete_category(category_id: str, service: CategoryService = Depends(category_service)):
+    await service.delete_category(category_id)
+
+@category_router.get("/base/{category_id}", response_model=BaseCategoryResponse)
+async def get_base_category(category_id: str, service: CategoryService = Depends(category_service)):
+    return await service.get_base_category(category_id)
